@@ -1,11 +1,8 @@
-import java.io.*;
-import java.lang.invoke.StringConcatFactory;
+
 import java.net.*;
-import java.util.concurrent.*;
 import java.util.Random;
 
 public class UDPServer {
-    static ExecutorService exec = null;
     static Random random = new Random();
     static String[] quotes = new String[] {
         "Please consider me as an alternative to suicide.",
@@ -40,17 +37,22 @@ public class UDPServer {
     public static void main(String[] args) {
         try {
             byte[] receiveData = new byte[1024];
+            DatagramSocket serverSocket = new DatagramSocket(17);
+            Runtime.getRuntime().addShutdownHook(new Thread(() -> {
+                if (serverSocket != null) {
+                    serverSocket.close();
+                }
+            }));
             while (true) {
-                DatagramSocket serverSocket = new DatagramSocket(17);
                 int number = random.nextInt(28);
                 DatagramPacket receivePacket = new DatagramPacket(receiveData, receiveData.length);
+                serverSocket.receive(receivePacket);
                 InetAddress clientAddress = receivePacket.getAddress();
                 int clientPort = receivePacket.getPort();
                 String quote = quotes[number];
                 byte[] sendData = quote.getBytes();
                 DatagramPacket sendPacket = new DatagramPacket(sendData, sendData.length, clientAddress, clientPort);
                 serverSocket.send(sendPacket);
-                serverSocket.close();
             }
         } catch(Exception ex) {
             ex.printStackTrace();

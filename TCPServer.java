@@ -43,9 +43,9 @@ public class TCPServer {
         try {
             ServerSocket server = new ServerSocket(17);
             Socket socket = null;
+            exec = Executors.newFixedThreadPool(5);
             while ((socket = server.accept()) != null) {
                 final Socket socketThread = socket;
-                exec = Executors.newFixedThreadPool(5);
                 exec.submit(() -> {
                     handleRequst(socketThread);
                 });
